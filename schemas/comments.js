@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+/* const AutoIncrement = require("mongoose-sequence")(mongoose); */
 
 const commentSchema = mongoose.Schema({
   postId: {
@@ -7,8 +8,8 @@ const commentSchema = mongoose.Schema({
   },
   commentId: {
     type: Number,
-    required: true,
     unique: true,
+    required: true,
   },
   userName: {
     type: String,
@@ -24,4 +25,8 @@ const commentSchema = mongoose.Schema({
   },
 });
 
+/* commentSchema.plugin(AutoIncrement, {
+  id: "comment_seq",
+  inc_field: "postId",
+}); */
 module.exports = mongoose.model("Comments", commentSchema);

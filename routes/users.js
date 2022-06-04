@@ -30,8 +30,7 @@ router.post("/users", async (req, res) => {
     const { userName, email, password, confirmPassword } =
       await postUsersSchema.validateAsync(req.body);
 
-    const checking = req.headers["token"];
-    if (checking.length) {
+    if (req.headers["token"]) {
       res.status(401).send({
         errorMessage: "이미 로그인 되어 있습니다.",
       });
@@ -89,14 +88,14 @@ router.post("/auth", async (req, res) => {
     return;
   }
 
-  //로그인 여부 확인(완료)
+  /*   //로그인 여부 확인(완료)
   const checking = req.headers["token"];
   if (checking.length) {
     res.status(401).send({
       errorMessage: "이미 로그인 되어 있습니다.",
     });
     return;
-  }
+  } */
 
   const token = jwt.sign({ userId: user.userId }, "my-key");
   res.send({

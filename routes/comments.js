@@ -2,43 +2,50 @@ const express = require("express");
 const Posts = require("../schemas/posts");
 const Comments = require("../schemas/comments");
 const jwt = require("JsonWebToken");
+const { ValidationError } = require("joi");
 const authMiddleware = require("../middlewares/auth-middleware");
 const { deleteOne } = require("../schemas/posts");
+const Joi = require("joi");
 const router = express.Router();
 
+const commentSchema = Joi.object({
+  comment: Joi.string().required(),
+});
+
 //댓글 작성
-router.post("/:postId", authMiddleware, async (req, res) => {
-  const { userName } = res.locals.user;
-  const { postId } = req.params;
-  const { comment } = req.body;
+router.post("/post/:postId", authMiddleware, async (req, res) => {
+  try {
+    const { userName } = res.locals.user;
+    const { postId } = req.params;
+    const { comment, commentId } = req.body;
 
-  const maxCommentId = await Comments.findOne().sort("-commentId").exec();
-  let commentId = 1;
+    if (comment === "") {
+      res.status(400).send({
+        errorMessage: "댓글 내용을 입력해주세요",
+      });
+      return;
+    }
 
-  if (maxCommentId) {
-    commentId = maxCommentId.commentId + 1;
-  }
-
-  if (comment === "") {
-    res.status(400).send({
-      errorMessage: "댓글 내용을 입력하세요",
+    const createdComments = await Comments.create({
+      commentId,
+      postId,
+      userName,
+      comment,
+      date: new Date(),
     });
-    return;
+
+    res.status(201).json({ msg: "등록되었습니다." });
+  } catch (e) {
+    if (e instanceof ValidationError) {
+    }
+    res.status(400).send({
+      errorMessage: "에러 발생",
+    });
   }
-
-  const createdComments = await Comments.create({
-    postId,
-    commentId,
-    userName,
-    comment,
-    date: new Date(),
-  });
-
-  res.status(201).json({ msg: "등록되었습니다." });
 });
 
 //댓글 수정
-router.put("/:postId/:commentId", authMiddleware, async (req, res) => {
+router.put("/post/:postId/:commentId", authMiddleware, async (req, res) => {
   const { userName } = res.locals.user;
   const { commentId } = req.params;
   const { comment } = req.body;
@@ -58,7 +65,7 @@ router.put("/:postId/:commentId", authMiddleware, async (req, res) => {
 });
 
 //댓글 삭제
-router.delete("/:postId/:commentId", authMiddleware, async (req, res) => {
+router.delete("/post/:postId/:commentId", authMiddleware, async (req, res) => {
   const { userName } = res.locals.user;
   const { commentId } = req.params;
   const { comment } = req.body;

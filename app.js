@@ -15,14 +15,9 @@ const requestMiddleware = (req, res, next) => {
   next();
 };
 
-app.use("/", express.urlencoded({ extended: false }), router);
 app.use(express.json());
 app.use(requestMiddleware);
 app.use("/", [postsRouter, userRouter, commentsRouter]);
-
-app.use("/", require("./routes/posts"));
-app.use("/users", require("./routes/users"));
-app.use("/comments", require("./routes/comments"));
 
 app.listen(port, () => {
   console.log(port, "서버 연결!🔥");

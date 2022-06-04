@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const Posts = require("../schemas/posts");
 const User = require("../models/user");
 const Comments = require("../schemas/comments");
@@ -7,7 +8,7 @@ const authMiddleware = require("../middlewares/auth-middleware");
 const router = express.Router();
 
 //게시글 전체조회(완료)
-router.get("/", async (req, res) => {
+router.get("/post", async (req, res) => {
   const posts = await Posts.find().sort({ date: -1 });
   res.json({
     posts,
@@ -15,11 +16,12 @@ router.get("/", async (req, res) => {
 });
 
 //게시글 상세조회(완료)
-router.get("/:postId", async (req, res) => {
+router.get("/post/:postId", async (req, res) => {
   const { postId } = req.params;
-  const [detail] = await Posts.find({ postId });
-
-  const comments = await Comments.find({ postId }).sort({ date: -1 });
+  const detail = await Posts.find({ postId: Number(postId) });
+  const comments = await Comments.find({ postId: Number(postId) }).sort({
+    commentId: -1,
+  });
 
   res.json({
     detail,
@@ -28,20 +30,14 @@ router.get("/:postId", async (req, res) => {
 });
 
 //게시글 등록(완료)
-router.post("/posts", authMiddleware, async (req, res) => {
-  const { userName, title, content } = req.body;
-
-  const maxPostId = await Posts.findOne().sort("-postId").exec();
-  let postId = 1;
-
-  if (maxPostId) {
-    postId = maxPostId.postId + 1;
-  }
+router.post("/post", authMiddleware, async (req, res) => {
+  const { postId, title, content } = req.body;
+  const { userName } = res.locals.user;
 
   const createdPosts = await Posts.create({
     postId,
-    userName,
     title,
+    userName,
     content,
     date: new Date(),
   });
@@ -50,29 +46,25 @@ router.post("/posts", authMiddleware, async (req, res) => {
 });
 
 //게시글 수정(완료)
-router.put("/:postId"),
-  authMiddleware,
-  async (req, res) => {
-    const { userName } = res.locals.user;
-    const { postId } = req.params;
-    const { title, content } = req.body;
+router.put("/post/:postId", authMiddleware, async (req, res) => {
+  const { userName } = res.locals.user;
+  const { postId } = req.params;
+  const { content } = req.body;
 
-    const checkContent = await Posts.findOne({ postId: Number(postId) });
-    if (checkContent["userName"] !== userName) {
-      return res
-        .status(400)
-        .send({ success: false, errorMessage: "수정할 수 없습니다." });
-    }
+  const checkContent = await Posts.findOne({ postId: Number(postId) });
+  if (checkContent["userName"] !== userName) {
+    return res
+      .status(400)
+      .send({ success: false, errorMessage: "수정할 수 없습니다." });
+  }
 
-    await Posts.updateOne({ postId }, { $set: { content } });
+  await Posts.updateOne({ postId }, { $set: { content } });
 
-    res.json({
-      success: "수정 완료!",
-    });
-  };
+  res.json({ success: "수정 완료!" });
+});
 
 //게시글 삭제(완료)
-router.delete("/:postId", authMiddleware, async (req, res) => {
+router.delete("/post/:postId", authMiddleware, async (req, res) => {
   const { userName } = res.locals.user;
   const { postId } = req.params;
   const { content } = req.body;

@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
+/* const AutoIncrement = require("mongoose-sequence")(mongoose); */
 
 const postsSchema = mongoose.Schema({
   postId: {
     type: Number,
-    required: true,
     unique: true,
   },
   userName: {
@@ -25,4 +25,8 @@ const postsSchema = mongoose.Schema({
   },
 });
 
+/* postsSchema.plugin(AutoIncrement, {
+  id: "post_seq",
+  inc_field: "postId",
+}); */
 module.exports = mongoose.model("Posts", postsSchema);
