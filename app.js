@@ -2,7 +2,7 @@ const express = require("express");
 const connect = require("./schemas");
 const router = express.Router();
 const app = express();
-const port = 8080;
+const port = 3000;
 
 connect();
 
