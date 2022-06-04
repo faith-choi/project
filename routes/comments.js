@@ -1,7 +1,7 @@
 const express = require("express");
 const Posts = require("../schemas/posts");
 const Comments = require("../schemas/comments");
-const jwt = require("JsonWebToken");
+const jwt = require("jsonwebtoken");
 const { ValidationError } = require("joi");
 const authMiddleware = require("../middlewares/auth-middleware");
 const { deleteOne } = require("../schemas/posts");
@@ -35,12 +35,13 @@ router.post("/post/:postId", authMiddleware, async (req, res) => {
     });
 
     res.status(201).json({ msg: "등록되었습니다." });
-  } catch (e) {
+  } catch (error) {
     if (e instanceof ValidationError) {
     }
     res.status(400).send({
       errorMessage: "에러 발생",
     });
+    return;
   }
 });
 

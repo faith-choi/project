@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Posts = require("../schemas/posts");
 const User = require("../models/user");
 const Comments = require("../schemas/comments");
-const jwt = require("JsonWebToken");
+const jwt = require("jsonwebtoken");
 const authMiddleware = require("../middlewares/auth-middleware");
 const router = express.Router();
 
