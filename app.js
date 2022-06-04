@@ -19,6 +19,10 @@ app.use(express.json());
 app.use(requestMiddleware);
 app.use("/", [postsRouter, userRouter, commentsRouter]);
 
+app.get("/", (req, res) => {
+  res.send("Hello World");
+});
+
 app.listen(port, () => {
   console.log(port, "서버 연결!🔥");
 });
